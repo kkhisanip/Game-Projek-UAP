@@ -1,37 +1,236 @@
+#include <iostream>
+#include <curses.h>
+#include <algorithm> // for max
 
+using namespace std;
 
+// Definisikan pasangan warna
+enum ColorPairs {
+    PAIR_BORDER = 1,
+    PAIR_WALL = 2,
+    PAIR_PATH = 3,
+    PAIR_START_END = 4,
+    PAIR_PLAYER = 5,
+    PAIR_MENU = 6,
+    PAIR_INFO = 7,
+    PAIR_WIN = 8
+};
+
+// Konstanta Ukuran Labirin
 const int MAZE_ROWS = 25;
 const int MAZE_COLS = 51;
 
+// Struktur posisi
 struct Position {
     int row;
     int col;
 };
 
+// =============================================================
+//  MAZE VERY EASY (Valid 25x50)
+// =============================================================
 char mazeVeryEasy[MAZE_ROWS][MAZE_COLS] = {
-    "##################################################",
-    "####################.S.###########################",
-    "##..........................................##..##",
-    "##..##################################..##..##..##",
-    "##..##################################..##..##..##",
-    "##..................................##..##..##..##",
-    "##################################..##..##..##..##",
-    "##################################..##..##..##..##",
-    "##..............................##..##..##..##..##",
-    "##..##############################..##..##..##..##",
-    "##..##############################..##..##..##..##",
-    "##..##..............................##..##..##..##",
-    "##..##################################..######..##",
-    "##..##################################..######..##",
-    "##..............................................##",
-    "##..##############################################",
-    "##..##############################################",
-    "##..##..........................................##",
-    "##..################.....########...########....##",
-    "##...............###.......######...######......##",
-    "##..###########..########...#####...#####....#####",
-    "##..###########..########.....###...###...########",
-    "##.............................##...##.........F##",
-    "##################################################",
-    "##################################################"
+
+//labirin 1
+
 };
+
+// =============================================================
+//  MAZE EASY (Valid 25x50)
+// =============================================================
+char mazeEasy[MAZE_ROWS][MAZE_COLS] = {
+
+//labirin 2
+
+};
+
+// =============================================================
+//  MAZE MEDIUM (Valid 25x50)
+// =============================================================
+char mazeMedium[MAZE_ROWS][MAZE_COLS] = {
+
+//labirin 3
+
+};
+
+// =============================================================
+//  MAZE HARD (Valid 25x50)
+// =============================================================
+char mazeHard[MAZE_ROWS][MAZE_COLS] = {
+
+//labirin 4
+
+};
+
+// =============================================================
+//  MAZE VERY HARD (Valid 25x50)
+// =============================================================
+char mazeVeryHard[MAZE_ROWS][MAZE_COLS] = {
+
+//labirin 5
+
+};
+
+// =============================================================
+//  SETUP NCURSES
+// =============================================================
+void setupNcurses() {
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    curs_set(0);
+
+    if (has_colors()) {
+        start_color();
+        init_pair(PAIR_BORDER, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_WALL, COLOR_BLACK, COLOR_MAGENTA);
+        init_pair(PAIR_PATH, COLOR_WHITE, COLOR_BLUE);
+        init_pair(PAIR_START_END, COLOR_BLACK, COLOR_GREEN);
+        init_pair(PAIR_PLAYER, COLOR_RED, COLOR_BLUE);
+        init_pair(PAIR_MENU, COLOR_CYAN, COLOR_BLACK);
+        init_pair(PAIR_INFO, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(PAIR_WIN, COLOR_BLACK, COLOR_GREEN);
+    }
+}
+
+void cleanupNcurses() {
+    endwin();
+}
+
+// =============================================================
+//  FIND START
+// =============================================================
+Position findStart(char maze[MAZE_ROWS][MAZE_COLS]) {
+    for (int i = 0; i < MAZE_ROWS; ++i)
+        for (int j = 0; j < MAZE_COLS; ++j)
+            if (maze[i][j] == 'S')
+                return {i, j};
+
+    return {-1, -1};
+}
+
+// =============================================================
+//  DRAW MAZE
+// =============================================================
+void drawMaze(char maze[MAZE_ROWS][MAZE_COLS], const Position& playerPos,
+              const string& levelName, int moves, int score)
+{
+    clear();
+    int startY = 1;
+
+    attron(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
+    mvprintw(startY - 1, 0, "+");
+    for (int j = 1; j < MAZE_COLS + 1; ++j) {
+        mvprintw(startY - 1, j, "-");
+        mvprintw(MAZE_ROWS + startY, j, "-");
+    }
+    mvprintw(startY - 1, MAZE_COLS + 1, "+");
+    mvprintw(MAZE_ROWS + startY, MAZE_COLS + 1, "+");
+    for (int i = 0; i < MAZE_ROWS; ++i) {
+        mvprintw(i + startY, 0, "¦");
+        mvprintw(i + startY, MAZE_COLS + 1, "¦");
+    }
+    attroff(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
+
+    for (int i = 0; i < MAZE_ROWS; ++i) {
+        for (int j = 0; j < MAZE_COLS; ++j) {
+            char cell = maze[i][j];
+            int pairId = PAIR_PATH;
+
+            if (cell == '#') pairId = PAIR_WALL;
+            else if (cell == 'S' || cell == 'F') pairId = PAIR_START_END;
+
+            attron(COLOR_PAIR(pairId));
+            mvaddch(i + startY, j + 1, cell);
+            attroff(COLOR_PAIR(pairId));
+        }
+    }
+
+    attron(COLOR_PAIR(PAIR_PLAYER) | A_BOLD);
+    mvaddch(playerPos.row + startY, playerPos.col + 1, 'O');
+    attroff(COLOR_PAIR(PAIR_PLAYER) | A_BOLD);
+
+    attron(COLOR_PAIR(PAIR_INFO) | A_BOLD);
+    mvprintw(MAZE_ROWS + startY + 2, 2, ">>> MAZE GAME UAP | Level: %s (25x50) <<<", levelName.c_str());
+    mvprintw(MAZE_ROWS + startY + 2, MAZE_COLS - 15, "Langkah: %d | Skor: %d", moves, score);
+    attroff(COLOR_PAIR(PAIR_INFO) | A_BOLD);
+
+    attron(COLOR_PAIR(PAIR_MENU));
+    mvprintw(MAZE_ROWS + startY + 3, 2, "Navigasi: Tombol Panah | S: Mulai, F: Selesai");
+    mvprintw(MAZE_ROWS + startY + 4, 2, "Tekan 'M' untuk kembali ke Menu, 'Q' untuk Keluar.");
+    attroff(COLOR_PAIR(PAIR_MENU));
+
+    refresh();
+}
+
+// =============================================================
+//  RUN GAME
+// =============================================================
+bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
+    Position playerPos = findStart(maze);
+    if (playerPos.row == -1) return true;
+
+    int ch, nextRow, nextCol;
+    int moveCount = 0;
+
+    int scoreInit = 1000;
+    if (levelName == "Easy") scoreInit = 900;
+    if (levelName == "Medium") scoreInit = 700;
+    if (levelName == "Hard") scoreInit = 500;
+    if (levelName == "Very Hard") scoreInit = 300;
+
+    int score = scoreInit;
+
+    while (true) {
+        
+        //score menu
+     
+	 }
+     
+// untuk key yang bisa di gerakin
+}
+    
+
+    // unreachable, but keep signature satisfied
+    return true;
+}
+
+// =============================================================
+//  MENU
+// =============================================================
+int showMenu() {
+    int choice = 1, key;
+    int startY = 6, startX = 10;
+
+    while (true) {
+
+// menu
+
+    }
+}
+
+// =============================================================
+//  MAIN PROGRAM
+// =============================================================
+int main() {
+    setupNcurses();
+
+    bool running = true;
+    while (running) {
+        int level = showMenu();
+        bool cont = true;
+
+        if (level == 1) cont = runGame(mazeVeryEasy, "Very Easy");
+        else if (level == 2) cont = runGame(mazeEasy, "Easy");
+        else if (level == 3) cont = runGame(mazeMedium, "Medium");
+        else if (level == 4) cont = runGame(mazeHard, "Hard");
+        else if (level == 5) cont = runGame(mazeVeryHard, "Very Hard");
+        else running = false;
+
+        if (!cont) running = false;
+    }
+
+    cleanupNcurses();
+    return 0;
+}
