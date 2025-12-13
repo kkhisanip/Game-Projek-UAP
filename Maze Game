@@ -1,8 +1,12 @@
 #include <iostream>
-#include <curses.h>
-#include <algorithm> // for max
+#include <ncurses/ncurses.h>
 
 using namespace std;
+
+// Helper function algorithem
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
 
 // Definisikan pasangan warna
 enum ColorPairs {
@@ -31,7 +35,7 @@ struct Position {
 // =============================================================
 char mazeVeryEasy[MAZE_ROWS][MAZE_COLS] = {
 
-//labirin 1
+// labirin 1
 
 };
 
@@ -40,7 +44,7 @@ char mazeVeryEasy[MAZE_ROWS][MAZE_COLS] = {
 // =============================================================
 char mazeEasy[MAZE_ROWS][MAZE_COLS] = {
 
-//labirin 2
+// labrin 2
 
 };
 
@@ -49,7 +53,7 @@ char mazeEasy[MAZE_ROWS][MAZE_COLS] = {
 // =============================================================
 char mazeMedium[MAZE_ROWS][MAZE_COLS] = {
 
-//labirin 3
+// labirin 3
 
 };
 
@@ -67,7 +71,7 @@ char mazeHard[MAZE_ROWS][MAZE_COLS] = {
 // =============================================================
 char mazeVeryHard[MAZE_ROWS][MAZE_COLS] = {
 
-//labirin 5
+// labirin 5
 
 };
 
@@ -84,12 +88,12 @@ void setupNcurses() {
     if (has_colors()) {
         start_color();
         init_pair(PAIR_BORDER, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_WALL, COLOR_BLACK, COLOR_MAGENTA);
-        init_pair(PAIR_PATH, COLOR_WHITE, COLOR_BLUE);
-        init_pair(PAIR_START_END, COLOR_BLACK, COLOR_GREEN);
-        init_pair(PAIR_PLAYER, COLOR_RED, COLOR_BLUE);
-        init_pair(PAIR_MENU, COLOR_CYAN, COLOR_BLACK);
-        init_pair(PAIR_INFO, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(PAIR_WALL, COLOR_BLUE, COLOR_BLUE);
+        init_pair(PAIR_PATH, COLOR_BLACK, COLOR_BLACK);
+        init_pair(PAIR_START_END, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(PAIR_PLAYER, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_MENU, COLOR_GREEN, COLOR_BLACK);
+        init_pair(PAIR_INFO, COLOR_CYAN, COLOR_BLACK);
         init_pair(PAIR_WIN, COLOR_BLACK, COLOR_GREEN);
     }
 }
@@ -103,10 +107,9 @@ void cleanupNcurses() {
 // =============================================================
 Position findStart(char maze[MAZE_ROWS][MAZE_COLS]) {
     for (int i = 0; i < MAZE_ROWS; ++i)
-        for (int j = 0; j < MAZE_COLS; ++j)
+        for (int j = 0; j < MAZE_COLS - 1; ++j)
             if (maze[i][j] == 'S')
                 return {i, j};
-
     return {-1, -1};
 }
 
@@ -121,28 +124,39 @@ void drawMaze(char maze[MAZE_ROWS][MAZE_COLS], const Position& playerPos,
 
     attron(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
     mvprintw(startY - 1, 0, "+");
-    for (int j = 1; j < MAZE_COLS + 1; ++j) {
+    for (int j = 1; j < MAZE_COLS; ++j) {
         mvprintw(startY - 1, j, "-");
         mvprintw(MAZE_ROWS + startY, j, "-");
     }
-    mvprintw(startY - 1, MAZE_COLS + 1, "+");
-    mvprintw(MAZE_ROWS + startY, MAZE_COLS + 1, "+");
+    mvprintw(startY - 1, MAZE_COLS, "+");
+    mvprintw(MAZE_ROWS + startY, MAZE_COLS, "+");
     for (int i = 0; i < MAZE_ROWS; ++i) {
-        mvprintw(i + startY, 0, "¦");
-        mvprintw(i + startY, MAZE_COLS + 1, "¦");
+        mvprintw(i + startY, 0, "|");
+        mvprintw(i + startY, MAZE_COLS, "|");
     }
     attroff(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
 
     for (int i = 0; i < MAZE_ROWS; ++i) {
-        for (int j = 0; j < MAZE_COLS; ++j) {
+        for (int j = 0; j < MAZE_COLS - 1; ++j) {
             char cell = maze[i][j];
             int pairId = PAIR_PATH;
 
-            if (cell == '#') pairId = PAIR_WALL;
-            else if (cell == 'S' || cell == 'F') pairId = PAIR_START_END;
+            if (cell == '#') {
+                pairId = PAIR_WALL;
+            } else if (cell == 'S' || cell == 'F') {
+                pairId = PAIR_START_END;
+            }
 
             attron(COLOR_PAIR(pairId));
-            mvaddch(i + startY, j + 1, cell);
+            if (cell == '#') {
+                mvaddch(i + startY, j + 1, ' ');
+            } else if (cell == 'S') {
+                mvaddch(i + startY, j + 1, 'S');
+            } else if (cell == 'F') {
+                mvaddch(i + startY, j + 1, 'F');
+            } else {
+                mvaddch(i + startY, j + 1, ' ');
+            }
             attroff(COLOR_PAIR(pairId));
         }
     }
@@ -152,8 +166,8 @@ void drawMaze(char maze[MAZE_ROWS][MAZE_COLS], const Position& playerPos,
     attroff(COLOR_PAIR(PAIR_PLAYER) | A_BOLD);
 
     attron(COLOR_PAIR(PAIR_INFO) | A_BOLD);
-    mvprintw(MAZE_ROWS + startY + 2, 2, ">>> MAZE GAME UAP | Level: %s (25x50) <<<", levelName.c_str());
-    mvprintw(MAZE_ROWS + startY + 2, MAZE_COLS - 15, "Langkah: %d | Skor: %d", moves, score);
+    mvprintw(MAZE_ROWS + startY + 2, 2, ">>> MAZE GAME | Level: %s <<<", levelName.c_str());
+    mvprintw(MAZE_ROWS + startY + 2, MAZE_COLS - 25, "Langkah: %d | Skor: %d", moves, score);
     attroff(COLOR_PAIR(PAIR_INFO) | A_BOLD);
 
     attron(COLOR_PAIR(PAIR_MENU));
@@ -175,24 +189,23 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
     int moveCount = 0;
 
     int scoreInit = 1000;
-    if (levelName == "Easy") scoreInit = 900;
-    if (levelName == "Medium") scoreInit = 700;
-    if (levelName == "Hard") scoreInit = 500;
-    if (levelName == "Very Hard") scoreInit = 300;
+    if (levelName == "Very Easy") scoreInit = 1000;
+    else if (levelName == "Easy") scoreInit = 900;
+    else if (levelName == "Medium") scoreInit = 700;
+    else if (levelName == "Hard") scoreInit = 500;
+    else if (levelName == "Very Hard") scoreInit = 300;
 
     int score = scoreInit;
 
     while (true) {
-        
-        //score menu
-     
-	 }
-     
-// untuk key yang bisa di gerakin
-}
-    
+    	
+    	// menu score
+                    }
+                }
+            }
+        }
+    }
 
-    // unreachable, but keep signature satisfied
     return true;
 }
 
@@ -201,12 +214,10 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
 // =============================================================
 int showMenu() {
     int choice = 1, key;
-    int startY = 6, startX = 10;
 
     while (true) {
-
-// menu
-
+    	
+    	//menu
     }
 }
 
