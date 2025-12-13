@@ -220,8 +220,96 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
     int score = scoreInit;
 
     while (true) {
-    	
-    	// menu score
+        drawMaze(maze, playerPos, levelName, moveCount, score);
+        ch = getch();
+
+        if (ch == 'q' || ch == 'Q') return false;
+        if (ch == 'm' || ch == 'M') return true;
+
+        nextRow = playerPos.row;
+        nextCol = playerPos.col;
+        bool moved = false;
+
+        if (ch == KEY_UP)    { nextRow--; moved = true; }
+        if (ch == KEY_DOWN)  { nextRow++; moved = true; }
+        if (ch == KEY_LEFT)  { nextCol--; moved = true; }
+        if (ch == KEY_RIGHT) { nextCol++; moved = true; }
+
+        if (moved && nextRow >= 0 && nextCol >= 0 &&
+            nextRow < MAZE_ROWS && nextCol < MAZE_COLS - 1)
+        {
+            char nextCell = maze[nextRow][nextCol];
+
+            if (nextCell != '#') {
+                playerPos = { nextRow, nextCol };
+                moveCount++;
+                score = max(0, score - 5);
+            }
+
+            if (nextCell == 'F') {
+                int finalScore = score + (1000 / max(1, moveCount));
+                if (finalScore < 0) finalScore = 0;
+
+                drawMaze(maze, playerPos, levelName, moveCount, finalScore);
+
+                // === WIN SCREEN ===
+                clear();
+
+                int boxW = 50;
+                int boxH = 12;
+                int startY = (LINES - boxH) / 2;
+                int startX = (COLS - boxW) / 2;
+
+                // Box border
+                attron(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
+                for (int i = 0; i < boxH; i++) {
+                    for (int j = 0; j < boxW; j++) {
+                        if (i == 0 && j == 0) mvaddch(startY + i, startX + j, '+');
+                        else if (i == 0 && j == boxW - 1) mvaddch(startY + i, startX + j, '+');
+                        else if (i == boxH - 1 && j == 0) mvaddch(startY + i, startX + j, '+');
+                        else if (i == boxH - 1 && j == boxW - 1) mvaddch(startY + i, startX + j, '+');
+                        else if (i == 0 || i == boxH - 1) mvaddch(startY + i, startX + j, '-');
+                        else if (j == 0 || j == boxW - 1) mvaddch(startY + i, startX + j, '|');
+                    }
+                }
+                attroff(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
+
+                // Judul menang
+                attron(COLOR_PAIR(PAIR_WIN) | A_BOLD);
+                mvprintw(startY + 2, startX + 12, "*** ANDA MENANG! ***");
+                attroff(COLOR_PAIR(PAIR_WIN) | A_BOLD);
+
+                // Informasi score
+                attron(COLOR_PAIR(PAIR_INFO));
+                mvprintw(startY + 4, startX + 5, "Total Langkah : %d", moveCount);
+                mvprintw(startY + 5, startX + 5, "Final Score   : %d", finalScore);
+                attroff(COLOR_PAIR(PAIR_INFO));
+
+                // Garis pemisah
+                attron(COLOR_PAIR(PAIR_BORDER));
+                mvprintw(startY + 6, startX + 2, "----------------------------------------------");
+                attroff(COLOR_PAIR(PAIR_BORDER));
+
+                // Menu pilihan
+                attron(COLOR_PAIR(PAIR_MENU));
+                mvprintw(startY + 8, startX + 5, "1. Main lagi level ini");
+                mvprintw(startY + 9, startX + 5, "2. Kembali ke Menu Utama");
+                mvprintw(startY + 10, startX + 5, "3. Keluar Game");
+                attroff(COLOR_PAIR(PAIR_MENU));
+
+                refresh();
+
+                int pilih;
+                while (true) {
+                    pilih = getch();
+                    if (pilih == '1') {
+                        return runGame(maze, levelName);
+                    }
+                    else if (pilih == '2') {
+                        return true;
+                    }
+                    else if (pilih == '3') {
+                        return false;
                     }
                 }
             }
