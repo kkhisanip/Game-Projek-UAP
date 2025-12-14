@@ -3,9 +3,12 @@
 Projek Akhir Pengenalan Pemrograman (UAP) 
 
 DESKRIPSI 
-  Tugas projek akhir ini akan membuat game animasi teks berbasis ncurses. Tema yang kelompok kami pilih yaitu game labirin atau yang kami beri nama "Maze Game". Alasan kami memilih game ini, karena bentuk labirinnya yang terlihat menarik, namun cukup rumit dalam memainkannya karena terdapat 'dinding' atau blok yang tersusun secara abstrak. Selain itu, terdapat animasi yang berperan sebagai karakter utama dan tugasnya adalah menyelesaikan rintangan dengan melewati jalanan yang terhimpit oleh dinding atau blok sampai menemukan titik tujuan yang sudah ditentukan. 
+  Tugas projek akhir ini akan membuat game animasi teks berbasis ncurses. Tema yang kelompok kami pilih yaitu game labirin atau yang kami beri nama "A-Maze Game" atau biasa kita bilang Amazing labirin game. Alasan kami memilih game ini, karena bentuk labirinnya yang terlihat menarik, namun cukup rumit dalam memainkannya karena terdapat 'dinding' atau blok yang tersusun secara abstrak. Selain itu, terdapat animasi yang berperan sebagai karakter utama dan tugasnya adalah menyelesaikan rintangan dengan melewati jalanan yang terhimpit oleh dinding atau blok sampai menemukan titik tujuan yang sudah ditentukan. 
   Konsep Maze Game yang kami buat, diberi modifikasi berupa tingkatan level. Dimulai dari level mudah, sedang, dan sulit. Jadi pada menubar akan ditampilkan 5 kategori level yaitu Level 1 (Very Easy), Level 2 (Easy), Level 3 (Medium), Level 4 (Hard), dan Level 5 (Very Hard). Kami juga menambahkan skor/ poin yang berbeda-beda disetiap levelnya. 
   Selain itu, karakter utama yang akan menyelesaikan permainan berbentuk huruf O, sebagai mulai permainan ditandai dengan huruf S, dan tanda mengakhiri permainan dengan huruf F. Blok atau dinding dibuat dari susunan karakter pagar #, yang ketika outputnya keluar akan berbentuk dinding labirin pada umumnya. Sebagai jalan kami menggunakan tanda spasi agar terlihat lebih rapih. 
+
+SCORE
+Scorenya di hitung berdasarkan langkah dan score yang di tentukan,untuk score yang di tentukan di mulai dari niali penuh seperti very easy dapat 1300,easy dapat 800,medium dapat 900,Hard dapat 750,dan untuk very hard 1000.itu score yang kita dapat hasil uji karena setiap langkah berbeda beda ada yang banyak dan dikit untuk pengitungan score nya itu ada dua yang pertama banyaknya langkah player dan score yang kedua itu nilai penuh yang di tentuin di kurang 5 setiap 1 langkah player.
 
 MANFAAT
 - Game ini akan mengasah kemampuan logika yang memainkannya dalam menganalisis labirin, mencari rute jalan yang tepat, dan menghindari       jalan buntu agar tidak tersesat.
@@ -24,6 +27,11 @@ CARA BERMAIN
 7) Permainan selesai ketika karakter O berhasil mencapai titik F. Sehingga akan menerima Skor/Poin yang sesuai dengan tingkat kesulitan       level yang telah diselesaikan.
 8) Setelah melihat skor, bisa kembali ke menu level untuk mencoba level lainnya atau mau keluar dari program.
 
-tampilan menu gamenya
-<img width="1919" height="1004" alt="image" src="https://github.com/user-attachments/assets/43918505-d5b9-4bc3-9abc-fff760dd2ff3" />
+Tampilan menu gamenya
+<img width="1919" height="1011" alt="image" src="https://github.com/user-attachments/assets/ffe0f429-d933-4f89-b6a4-696e34c0b02a" />
 
+Tampilan Ingame
+<img width="785" height="866" alt="image" src="https://github.com/user-attachments/assets/c61b3c22-1c24-421b-8ac5-291fd8f8d35b" />
+
+Tampilan score
+<img width="1919" height="1002" alt="image" src="https://github.com/user-attachments/assets/a6e8b454-9888-4a9d-86ab-a8d2adc49172" />
