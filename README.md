@@ -24,3 +24,6 @@ CARA BERMAIN
 7) Permainan selesai ketika karakter O berhasil mencapai titik F. Sehingga akan menerima Skor/Poin yang sesuai dengan tingkat kesulitan       level yang telah diselesaikan.
 8) Setelah melihat skor, bisa kembali ke menu level untuk mencoba level lainnya atau mau keluar dari program.
 
+tampilan menu gamenya
+<img width="1919" height="1004" alt="image" src="https://github.com/user-attachments/assets/43918505-d5b9-4bc3-9abc-fff760dd2ff3" />
+
