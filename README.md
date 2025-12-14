@@ -34,4 +34,5 @@ Tampilan Ingame
 <img width="785" height="866" alt="image" src="https://github.com/user-attachments/assets/c61b3c22-1c24-421b-8ac5-291fd8f8d35b" />
 
 Tampilan score
-<img width="1919" height="1002" alt="image" src="https://github.com/user-attachments/assets/a6e8b454-9888-4a9d-86ab-a8d2adc49172" />
+<img width="1915" height="1005" alt="image" src="https://github.com/user-attachments/assets/bb3e1ab8-5531-4209-9d52-742ee71240b7" />
+
