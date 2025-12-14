@@ -389,11 +389,84 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
 //  MENU
 // =============================================================
 int showMenu() {
-    int choice = 1, key;
+    int choice = 1;  
+    int key;
 
     while (true) {
-    	
-    	//menu
+        clear();  
+        
+        int centerX = COLS / 2; 
+        int startY = 2;
+
+        attron(COLOR_PAIR(PAIR_MENU) | A_BOLD);
+        mvprintw(startY    , centerX - 23, " ¦¦¦¦¦     ¦¦¦    ¦¦¦  ¦¦¦¦¦  ¦¦¦¦¦¦¦ ¦¦¦¦¦¦¦");
+        mvprintw(startY + 1, centerX - 23, "¦¦   ¦¦    ¦¦¦¦  ¦¦¦¦ ¦¦   ¦¦    ¦¦¦  ¦¦     ");
+        mvprintw(startY + 2, centerX - 23, "¦¦¦¦¦¦¦ -- ¦¦ ¦¦¦¦ ¦¦ ¦¦¦¦¦¦¦   ¦¦¦   ¦¦¦¦¦  ");
+        mvprintw(startY + 3, centerX - 23, "¦¦   ¦¦    ¦¦  ¦¦  ¦¦ ¦¦   ¦¦  ¦¦¦    ¦¦     ");
+        mvprintw(startY + 4, centerX - 23, "¦¦   ¦¦    ¦¦      ¦¦ ¦¦   ¦¦ ¦¦¦¦¦¦¦ ¦¦¦¦¦¦¦");
+        attroff(COLOR_PAIR(PAIR_MENU) | A_BOLD);
+        
+        attron(COLOR_PAIR(PAIR_INFO));
+        mvprintw(startY + 6, centerX - 11, "-- ADVENTURE AWAITS --");
+        attroff(COLOR_PAIR(PAIR_INFO));
+
+        attron(COLOR_PAIR(PAIR_BORDER));
+        mvprintw(startY + 8, centerX - 13, "+---------------------------+");
+        mvprintw(startY + 9, centerX - 13, "|    SELECT YOUR LEVEL      |");
+        mvprintw(startY + 10, centerX - 13, "+---------------------------+");
+        attroff(COLOR_PAIR(PAIR_BORDER));
+
+        const char* levels[] = {
+            "Level 1 (Very Easy)",
+            "Level 2 (Easy)",
+            "Level 3 (Medium)",
+            "Level 4 (Hard)",
+            "Level 5 (Very Hard)",
+            "Keluar Program (Q)"
+        };
+
+        // Tampilkan setiap opsi menu
+        for (int i = 1; i <= 6; i++) {
+            // Highlight pilihan yang sedang aktif
+            if (choice == i) {
+                attron(COLOR_PAIR(PAIR_MENU) | A_REVERSE | A_BOLD);
+                mvprintw(startY + 11 + i, centerX - 12, " %d. %-22s ", i, levels[i-1]);
+                attroff(COLOR_PAIR(PAIR_MENU) | A_REVERSE | A_BOLD);
+            } else {
+                attron(COLOR_PAIR(PAIR_MENU));
+                mvprintw(startY + 11 + i, centerX - 12, " %d. %-22s ", i, levels[i-1]);
+                attroff(COLOR_PAIR(PAIR_MENU));
+            }
+        }
+
+        // ===== BOTTOM BORDER =====
+        attron(COLOR_PAIR(PAIR_BORDER));
+        mvprintw(startY + 19, centerX - 20, "==========================================");
+        attroff(COLOR_PAIR(PAIR_BORDER));
+        
+        // ===== INSTRUKSI =====
+        attron(COLOR_PAIR(PAIR_INFO));
+        mvprintw(startY + 20, centerX - 19, "Arrow Navigate | ENTER Select | Q Quit");
+        attroff(COLOR_PAIR(PAIR_INFO));
+
+        refresh();  // Update layar
+        
+        // Terima input dari keyboard
+        key = getch();
+
+        // Proses input
+        if (key == KEY_UP && choice > 1) {
+            choice--;  // Pindah ke atas
+        }
+        else if (key == KEY_DOWN && choice < 6) {
+            choice++;  // Pindah ke bawah
+        }
+        else if (key == 10) {  // Enter key (ASCII 10)
+            return choice;     // Return pilihan
+        }
+        else if (key == 'q' || key == 'Q') {
+            return 6;  // Keluar program
+        }
     }
 }
 
