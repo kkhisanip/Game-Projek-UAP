@@ -4,6 +4,7 @@
 using namespace std;
 
 // Helper function algorithem
+// Mengembalikan nilai terbesar antara a dan b
 int max(int a, int b) {
     return (a > b) ? a : b;
 }
@@ -31,7 +32,7 @@ struct Position {
 };
 
 // =============================================================
-//  MAZE VERY EASY (Ukuran 25x51)
+//  MAZE VERY EASY (Ukuran 25x50)
 // =============================================================
 char mazeVeryEasy[MAZE_ROWS][MAZE_COLS] = {
 "##################################################",
@@ -62,7 +63,7 @@ char mazeVeryEasy[MAZE_ROWS][MAZE_COLS] = {
 };
 
 // =============================================================
-//  MAZE EASY (Ukuran 25x51)
+//  MAZE EASY (Ukuran 25x50)
 // =============================================================
 char mazeEasy[MAZE_ROWS][MAZE_COLS] = {
 "##################################################",
@@ -93,7 +94,7 @@ char mazeEasy[MAZE_ROWS][MAZE_COLS] = {
 };
 
 // =============================================================
-//  MAZE MEDIUM (Ukuran 25x51)
+//  MAZE MEDIUM (Ukuran 25x50)
 // =============================================================
 char mazeMedium[MAZE_ROWS][MAZE_COLS] = {
 "##################################################",
@@ -124,7 +125,7 @@ char mazeMedium[MAZE_ROWS][MAZE_COLS] = {
 };
 
 // =============================================================
-//  MAZE HARD (Ukuran 25x51)
+//  MAZE HARD (Ukuran 25x50)
 // =============================================================
 char mazeHard[MAZE_ROWS][MAZE_COLS] = {
     "#################################################",
@@ -155,7 +156,7 @@ char mazeHard[MAZE_ROWS][MAZE_COLS] = {
 };
 
 // =============================================================
-//  MAZE VERY HARD (Ukuran 25x51)
+//  MAZE VERY HARD (Ukuran 25x50)
 // =============================================================
 char mazeVeryHard[MAZE_ROWS][MAZE_COLS] = {
     "#################################################",
@@ -188,33 +189,35 @@ char mazeVeryHard[MAZE_ROWS][MAZE_COLS] = {
 // =============================================================
 //  SETUP NCURSES
 // =============================================================
-void setupNcurses() {
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-    curs_set(0);
+void setupNcurses() { // Fungsi untuk menginisialisasi library ncurses
+    initscr();              // Inisialisasi ncurses
+    cbreak();               // Disable line buffering
+    noecho();               // Tidak menampilkan input ke layar
+    keypad(stdscr, TRUE);   // Aktifkan input keyboard special (arrow keys)
+    curs_set(0);            // Sembunyikan cursor
 
     if (has_colors()) {
         start_color();
-        init_pair(PAIR_BORDER, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_WALL, COLOR_BLUE, COLOR_BLUE);
-        init_pair(PAIR_PATH, COLOR_BLACK, COLOR_BLACK);
-        init_pair(PAIR_START_END, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(PAIR_PLAYER, COLOR_RED, COLOR_BLACK);
-        init_pair(PAIR_MENU, COLOR_GREEN, COLOR_BLACK);
-        init_pair(PAIR_INFO, COLOR_CYAN, COLOR_BLACK);
-        init_pair(PAIR_WIN, COLOR_BLACK, COLOR_GREEN);
+        // Definisi warna: init_pair(id, warna_text, warna_background)
+        init_pair(PAIR_BORDER, COLOR_WHITE, COLOR_BLACK);      // border putih
+        init_pair(PAIR_WALL, COLOR_BLUE, COLOR_BLUE);          // tembok biru solid
+        init_pair(PAIR_PATH, COLOR_BLACK, COLOR_BLACK);        // jalan hitam solid
+        init_pair(PAIR_START_END, COLOR_YELLOW, COLOR_BLACK);  // Star/End kuning
+        init_pair(PAIR_PLAYER, COLOR_RED, COLOR_BLACK);        // player merah
+        init_pair(PAIR_MENU, COLOR_GREEN, COLOR_BLACK);        // menu hijau
+        init_pair(PAIR_INFO, COLOR_CYAN, COLOR_BLACK);         // Info cyan
+        init_pair(PAIR_WIN, COLOR_BLACK, COLOR_GREEN);         // win screen
     }
 }
-
+// Fungsi untuk membersihkan dan menutup ncurses
 void cleanupNcurses() {
-    endwin();
+    endwin(); // Kembalikan terminal ke mode normal
 }
 
 // =============================================================
 //  FIND START
 // =============================================================
+//mencari posisi titik star (S) di dalam maza
 Position findStart(char maze[MAZE_ROWS][MAZE_COLS]) {
     for (int i = 0; i < MAZE_ROWS; ++i)
         for (int j = 0; j < MAZE_COLS - 1; ++j)
@@ -226,66 +229,74 @@ Position findStart(char maze[MAZE_ROWS][MAZE_COLS]) {
 // =============================================================
 //  DRAW MAZE
 // =============================================================
+//  Fungsi untuk menggambar maze di layar
 void drawMaze(char maze[MAZE_ROWS][MAZE_COLS], const Position& playerPos,
               const string& levelName, int moves, int score)
 {
-    clear();
+    clear(); // bersihkan
     int startY = 1;
-
+    // ===== GAMBAR BORDER LUAR =====
     attron(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
+    // Border atas dan bawah
     mvprintw(startY - 1, 0, "+");
     for (int j = 1; j < MAZE_COLS; ++j) {
-        mvprintw(startY - 1, j, "-");
-        mvprintw(MAZE_ROWS + startY, j, "-");
+        mvprintw(startY - 1, j, "-");         // border atas
+        mvprintw(MAZE_ROWS + startY, j, "-"); // border bawah
     }
     mvprintw(startY - 1, MAZE_COLS, "+");
     mvprintw(MAZE_ROWS + startY, MAZE_COLS, "+");
     for (int i = 0; i < MAZE_ROWS; ++i) {
-        mvprintw(i + startY, 0, "|");
-        mvprintw(i + startY, MAZE_COLS, "|");
+        mvprintw(i + startY, 0, "|");         //border kiri
+        mvprintw(i + startY, MAZE_COLS, "|"); // border kanan
     }
     attroff(COLOR_PAIR(PAIR_BORDER) | A_BOLD);
 
+    // ===== GAMBAR ISI MAZE =====
     for (int i = 0; i < MAZE_ROWS; ++i) {
         for (int j = 0; j < MAZE_COLS - 1; ++j) {
             char cell = maze[i][j];
-            int pairId = PAIR_PATH;
+            int pairId = PAIR_PATH;   //warna hitam jalan
 
+            // Tentukan warna berdasarkan isi cell
             if (cell == '#') {
-                pairId = PAIR_WALL;
+                pairId = PAIR_WALL;  // tembok biru
             } else if (cell == 'S' || cell == 'F') {
-                pairId = PAIR_START_END;
+                pairId = PAIR_START_END;  // star dan finis kuning
             }
 
             attron(COLOR_PAIR(pairId));
+            // Render cell sesuai tipe
             if (cell == '#') {
-                mvaddch(i + startY, j + 1, ' ');
+                mvaddch(i + startY, j + 1, ' '); // tembok
             } else if (cell == 'S') {
-                mvaddch(i + startY, j + 1, 'S');
+                mvaddch(i + startY, j + 1, 'S'); // star 
             } else if (cell == 'F') {
-                mvaddch(i + startY, j + 1, 'F');
+                mvaddch(i + startY, j + 1, 'F'); // finis
             } else {
-                mvaddch(i + startY, j + 1, ' ');
+                mvaddch(i + startY, j + 1, ' '); // jalan 
             }
             attroff(COLOR_PAIR(pairId));
         }
     }
 
+    // ===== GAMBAR PLAYER =====
     attron(COLOR_PAIR(PAIR_PLAYER) | A_BOLD);
-    mvaddch(playerPos.row + startY, playerPos.col + 1, 'O');
+    mvaddch(playerPos.row + startY, playerPos.col + 1, 'O'); // player (merah)
     attroff(COLOR_PAIR(PAIR_PLAYER) | A_BOLD);
 
+    // ===== TAMPILKAN INFO GAME =====
     attron(COLOR_PAIR(PAIR_INFO) | A_BOLD);
     mvprintw(MAZE_ROWS + startY + 2, 2, ">>> MAZE GAME | Level: %s <<<", levelName.c_str());
     mvprintw(MAZE_ROWS + startY + 2, MAZE_COLS - 25, "Langkah: %d | Skor: %d", moves, score);
     attroff(COLOR_PAIR(PAIR_INFO) | A_BOLD);
 
+    // ===== TAMPILKAN INSTRUKSI =====
     attron(COLOR_PAIR(PAIR_MENU));
     mvprintw(MAZE_ROWS + startY + 3, 2, "Navigasi: Tombol Panah | S: Mulai, F: Selesai");
     mvprintw(MAZE_ROWS + startY + 4, 2, "Tekan 'M' untuk kembali ke Menu, 'Q' untuk Keluar.");
     attroff(COLOR_PAIR(PAIR_MENU));
 
-    refresh();
+    refresh(); // update layar
 }
 
 // =============================================================
@@ -298,12 +309,13 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
     int ch, nextRow, nextCol;
     int moveCount = 0;
 
-    int scoreInit = 1000;
-    if (levelName == "Very Easy") scoreInit = 1000;
-    else if (levelName == "Easy") scoreInit = 900;
-    else if (levelName == "Medium") scoreInit = 700;
-    else if (levelName == "Hard") scoreInit = 500;
-    else if (levelName == "Very Hard") scoreInit = 300;
+    // ===== SCORE YANG DITENTUKAN =====
+    int scoreInit = 10000;
+    if (levelName == "Very Easy") scoreInit = 1300;
+    else if (levelName == "Easy") scoreInit = 800;
+    else if (levelName == "Medium") scoreInit = 900;
+    else if (levelName == "Hard") scoreInit = 750;
+    else if (levelName == "Very Hard") scoreInit = 1000;
 
     int score = scoreInit;
 
@@ -410,6 +422,7 @@ bool runGame(char maze[MAZE_ROWS][MAZE_COLS], const string& levelName) {
 // =============================================================
 //  MENU
 // =============================================================
+// menampilakn menu utama dan memilih level
 int showMenu() {
     int choice = 1; // Default pilihan pertama
     int key;
@@ -500,23 +513,29 @@ int showMenu() {
 //  MAIN PROGRAM
 // =============================================================
 int main() {
+// inisialisai ncruses dan setup warna
     setupNcurses();
 
-    bool running = true;
+    bool running = true; // flag untuk mengatur loop utama
+    // ===== LOOP UTAMA PROGRAM =====
     while (running) {
+        // Tampilkan menu dan dapatkan pilihan user (1-6)
         int level = showMenu();
-        bool cont = true;
+        bool cont = true;  // Flag untuk kontrol flow
 
+        // Jalankan game sesuai level yang dipilih
+        // Setiap level memiliki maze dan nama difficulty yang berbeda
         if (level == 1) cont = runGame(mazeVeryEasy, "Very Easy");
         else if (level == 2) cont = runGame(mazeEasy, "Easy");
         else if (level == 3) cont = runGame(mazeMedium, "Medium");
         else if (level == 4) cont = runGame(mazeHard, "Hard");
         else if (level == 5) cont = runGame(mazeVeryHard, "Very Hard");
-        else running = false;
-
+            // Pilihan 6 atau 'Q': Keluar program
+            running = false;
+        // Jika runGame() return false, user ingin keluar
         if (!cont) running = false;
     }
 
-    cleanupNcurses();
-    return 0;
+    cleanupNcurses();      // Bersihkan ncurses dan kembalikan terminal ke mode normal
+    return 0;  // Program selesai
 }
